@@ -69,6 +69,10 @@ server <- function(input, output, session) {
   
   values <- reactiveValues(source_data = NULL)
   
+  observeEvent(input$tutorial_load_data, {
+    values$source_data <- readr::read_csv("gtt.csv");
+  })
+  
   observeEvent(input$source_file, {
 
     req(input$source_file)

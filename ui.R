@@ -2,6 +2,7 @@ library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
 library(shinydashboardPlus)
+library(shinyjs)
 
 addHelpBlock <- function(x, help_text = "") {
   
@@ -15,15 +16,49 @@ addHelpBlock <- function(x, help_text = "") {
   
 }
 
+modal <- function() {
+  
+  tags$div(class="modal fade", id="introModal", tabindex="-1",
+    tags$div(class="modal-dialog",
+      tags$div(class="modal-content",
+        tags$div(class="modal-header",
+          tags$button(type="button", class="close", `data-dismiss`="modal",
+            icon("times")
+          ),
+          tags$h4(class="modal-title", id="myModalLabel", "Control Charts")
+        ),
+        tags$div(class="modal-body",
+          tags$p("This app can be used to create control charts for data uploaded as a .csv file.",
+                 "The charts are generated using the ", 
+                 tags$a(href = "https://anhoej.github.io/qicharts2/", target = "_blank", "qicharts package")),
+          tags$p("You can dive in by closing this dialog and uploading your own file or you may run a quick tutorial",
+                 "with an example file by clicking `Start Tutorial` below.")
+
+        ),
+        tags$div(class="modal-footer",
+          tags$button(type="button", class="btn btn-default", `data-dismiss`="modal", "Close"),
+          tags$button(type="button", class="btn btn-primary", "Start Tutorial", onclick = "start_tutorial()")
+        )
+      )
+    )
+  )  
+  
+}
+
 dashboardPage(
   dashboardHeaderPlus(title = "Control Charts"),
                 dashboardSidebar(disable = TRUE),
                 dashboardBody(
-                  tags$head(tags$script(src = "script.js")),
+                  tags$head(
+                    tags$script(src = "intro.js"),
+                    tags$script(src = "script.js"),
+                    tags$link(rel = 'stylesheet', href = 'introjs.css', type = 'text/css')
+                  ),
+                  modal(),
                   useShinyjs(),
                   fluidRow(
-                    column(width = 3,
-                      box(id = "upload_box", width = NULL, title = tagList(icon("upload"), "Upload Data"), 
+                    column(width = 3, `data-step` = 1, `data-position` = 'right', `data-intro` = "The left column contains the controls you will use to create your chart",
+                      box(id = "upload_box", width = NULL, title = tagList(icon("upload"), "Upload Data"), `data-step` = 3, `data-position` = 'right', `data-intro` = "The `Upload Data` box is where you upload your csv file for processing. For this tutorial we will load the example data file `gtt.csv`.",
                           collapsible = TRUE,
                           tags$p("Use this Upload Data box to upload your dataset. The file must be a flat comma separated (.csv) file with headers."),
                           fileInput("source_file", "", multiple = FALSE,
@@ -33,7 +68,7 @@ dashboardPage(
                           ),
                           tags$button(id = "file_next", class = "pull-right btn btn-default", disabled = 'disabled', onclick = 'open_box("typing_box")', "Next", icon("arrow-right"))
                       ),
-                      box(id = "typing_box", width = NULL, title = tagList(icon("project-diagram"), "Data Typing"), collapsible = TRUE, collapsed = TRUE,
+                      box(id = "typing_box", width = NULL, title = tagList(icon("project-diagram"), "Data Typing"), collapsible = TRUE, collapsed = TRUE, `data-step` = 4, `data-intro` = "The `Data Typing` box  allows you to tell the app about the data you uploaded.",
                         tags$p("This Data Typing box allows you to categorize the type of data you are uploading so that the right control chart can be selected. The selections are based on the flow chart on page 151 of The Health Care Data Guide."),
                         addHelpBlock(selectizeInput("data_type", label = "Type of Data",
                                                                  choices = c("Count or Classification",
@@ -74,7 +109,7 @@ dashboardPage(
 
                       )
                     ),
-                    column(width = 9,
+                    column(width = 9, `data-step` = 2, `data-intro` = "The right column allows you to see your data and/or the chart as your work.",
                       tabBox(width = NULL,
                         tabPanel("File Preview",
                           tags$h3(style = "text-align: center", textOutput("file_preview_help")),
