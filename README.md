@@ -1,4 +1,4 @@
 # ControlCharts
 Shiny app
 
-[screenshot](screenshot.png)
+![screenshot](screenshot.png)
