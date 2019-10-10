@@ -19,6 +19,14 @@ server <- function(input, output, session) {
     
   })
   
+  output$data_typing_help <- renderText({
+    if(!is.null(values$source_data)) {
+      NULL
+    } else {
+      "Details about your data will appear here"
+    }
+  })
+  
   output$file_preview_help <- renderText({
     if(!is.null(values$source_data)) {
       NULL
@@ -138,6 +146,46 @@ server <- function(input, output, session) {
     
   })
 
+  typing_data <- reactive({
+    
+    d <- values$source_data
+    
+    data_type <- function(x) {
+      
+      if(is.character(x)) {
+        return("Classification")
+      } else if(is.numeric(x)) {
+        if(length(unique(x[!is.na(x)])) / sum(!is.na(x)) > 0.25) {
+          return("Continuous")
+        } else {
+          return("Count")
+        }
+      } else {
+        return("Are dates continuous?")
+      }
+      
+    }
+    
+    x <- lapply(colnames(d), function(cn) {
+      
+      list(
+        "Column Name" = cn,
+        "Data Class" = class(d[[cn]]),
+        "Unique Values" = length(unique(d[[cn]][!is.na(d[[cn]])])),
+        "Non-NA Values" = sum(!is.na(d[[cn]])),
+        "Data Type" = as.character(tags$span(style = "font-weight: bold", data_type(d[[cn]])))
+      )
+      
+    })
+    
+    y <- as.data.frame(matrix(unlist(x), ncol = length(unlist(x[1])), byrow = TRUE))
+    
+    colnames(y) <- c("Column Name", "Data Class", "Unique Value Count", "Non-NA Value Count", "Calculated Data Type")
+    
+    y
+    
+  })
+  
   control_chart <- reactive({
     
     df <- values$source_data
@@ -151,8 +199,15 @@ server <- function(input, output, session) {
     }
     
     try(qic(df[[input$x_axis]], df[[input$y_axis]], n,
-        chart = input$chart), silent = TRUE)
+            chart = input$chart_type, title = input$main_title,
+            xlab = ifelse(input$x_title == "", input$x_axis, input$x_title),
+            ylab = ifelse(input$y_title == "", input$y_title, input$y_title)),
+        silent = TRUE)
     
+  })
+  
+  output$data_typing_table <- renderTable({
+    typing_data()
   })
   
   output$download_chart <- downloadHandler(
