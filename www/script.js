@@ -28,7 +28,7 @@ function open_box(box_id, close_others = true) {
 $(document).ready(function() {
   
   // Commenting out the modal opening for now...
-  // $("#introModal").modal("show");
+   $("#introModal").modal("show");
 
 });
 

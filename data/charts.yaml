@@ -1,0 +1,37 @@
+count:
+  equal:
+    none: u
+    single: [u,c]
+    multiple:
+  unequal:
+    none:
+    single:
+    multiple:
+continuous:
+  equal:
+    none:
+    single:
+    multiple:
+  unequal:
+    none:
+    single:
+    multiple:
+classification:
+  equal:
+    none:
+    single:
+    multiple:
+  unequal:
+    none:
+    single:
+    multiple:
+charts:
+  u:
+    name: Uncertainty
+    description: |
+      This is a description of an uncertainty chart
+  c:
+    name: C Chart
+    description: |
+      This is a description for a C Chart
+
